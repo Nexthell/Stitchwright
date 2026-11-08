@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stitchwright</title>
+<meta name="description" content="Stitchwright: free lettering and monogram software for home embroidery machines. Satin, fill and industrial stitch types, plus SVG import. Saves PES, DST, JEF, EXP, VP3 and XXX. For Windows.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: the page is a piece of workwear twill; the hero is an embroidered name patch,
+   and every section is "sewn" with a dashed running-stitch rule. Single dark theme by choice. */
+:root {
+  --twill: #18202e;        /* navy workwear fabric */
+  --twill-deep: #111722;
+  --thread: #e7b54a;       /* satin gold thread */
+  --thread-shade: #b9862a;
+  --chalk: #eef0f3;        /* body text, tailor's-chalk white */
+  --muted: #9aa5b6;
+  --font-display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { background: var(--twill-deep); }
+body {
+  margin: 0;
+  background-color: var(--twill);
+  background-image: repeating-linear-gradient(135deg, rgba(255,255,255,0.018) 0 2px, transparent 2px 5px);
+  color: var(--chalk);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.6;
+}
+a { color: var(--thread); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--thread); outline-offset: 3px; border-radius: 4px; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; letter-spacing: 0.01em; }
+h2 { font-size: clamp(34px, 5vw, 48px); font-weight: 800; text-transform: uppercase; line-height: 1; }
+h3 { font-size: 24px; font-weight: 800; text-transform: uppercase; line-height: 1.1; }
+p { margin: 0; }
+.mono { font-family: var(--font-mono); font-size: 14px; letter-spacing: 0.02em; }
+
+/* running-stitch divider */
+.seam { height: 2px; background: repeating-linear-gradient(90deg, var(--thread-shade) 0 10px, transparent 10px 17px); opacity: 0.7; border: 0; margin: 0; }
+
+/* work-in-progress banner */
+.wip { background: repeating-linear-gradient(135deg, #2a2412 0 14px, #231e10 14px 28px); border-bottom: 2px dashed rgba(231,181,74,0.6); color: var(--chalk); font-size: 15px; }
+.wip .wrap { display: flex; gap: 12px; align-items: center; padding-top: 10px; padding-bottom: 10px; flex-wrap: wrap; }
+.wip .pill { font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; background: var(--thread); color: #1a1406; padding: 3px 9px; border-radius: 99px; font-weight: 500; }
+.wip a { color: var(--thread); }
+
+/* nav */
+nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 0; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 900; font-size: 24px; text-transform: uppercase; color: var(--chalk); text-decoration: none; letter-spacing: 0.03em; }
+.brand svg { flex: none; }
+.navlinks { display: flex; gap: 22px; flex-wrap: wrap; }
+.navlinks a { color: var(--muted); text-decoration: none; font-weight: 500; font-size: 15px; }
+.navlinks a:hover { color: var(--chalk); }
+
+/* hero */
+.hero { display: grid; grid-template-columns: 1.15fr 1fr; gap: 48px; align-items: center; padding: 40px 0 72px; }
+.patch {
+  position: relative;
+  background-color: #1f2b40;
+  background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0 1px, transparent 1px 4px);
+  border-radius: 22px;
+  border: 7px solid var(--thread-shade);
+  box-shadow: 0 0 0 2px #8a6420, 0 18px 40px rgba(0,0,0,0.45);
+  padding: 44px 28px 40px;
+  text-align: center;
+}
+.patch::before {
+  content: ""; position: absolute; inset: 9px; border-radius: 13px;
+  border: 2px dashed rgba(231,181,74,0.75);
+  pointer-events: none;
+}
+.satin {
+  font-family: var(--font-display);
+  font-weight: 900;
+  text-transform: uppercase;
+  font-size: clamp(46px, 7.4vw, 86px);
+  line-height: 0.95;
+  letter-spacing: 0.02em;
+  background-image: repeating-linear-gradient(72deg, #f6d27e 0 1.5px, var(--thread) 1.5px 3px, var(--thread-shade) 3px 4px);
+  background-size: 200% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 2px 0 rgba(0,0,0,0.55));
+  transition: background-position 1.2s ease;
+}
+.patch:hover .satin { background-position: 100% 0; }
+.patch .under { margin-top: 14px; color: var(--muted); }
+.patch .under b { color: var(--chalk); font-weight: 500; }
+
+.lede { font-size: 20px; max-width: 34ch; color: var(--chalk); margin-top: 18px; }
+.hero h1 { font-size: clamp(40px, 6vw, 64px); font-weight: 900; text-transform: uppercase; line-height: 0.98; }
+.hero h1 em { font-style: normal; color: var(--thread); }
+.actions { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 30px; align-items: center; }
+.btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--font-body); font-weight: 600; font-size: 16px;
+  padding: 14px 22px; border-radius: 10px; text-decoration: none; cursor: pointer;
+  border: 2px solid var(--thread);
+}
+.btn-primary { background: var(--thread); color: #1a1406; }
+.btn-primary:hover { background: #f2c561; }
+.btn-ghost { background: transparent; color: var(--thread); }
+.btn-ghost:hover { background: rgba(231,181,74,0.1); }
+.btn[aria-disabled="true"] { opacity: 0.85; cursor: default; }
+.fine { color: var(--muted); font-size: 14px; margin-top: 12px; }
+
+/* spec strip */
+.specs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border-block: 2px dashed rgba(231,181,74,0.45); }
+.spec { padding: 22px 20px; display: flex; flex-direction: column; gap: 4px; }
+.spec + .spec { border-left: 1px solid rgba(255,255,255,0.08); }
+.spec .k { color: var(--muted); text-transform: uppercase; font-size: 12px; }
+.spec .v { font-family: var(--font-display); font-weight: 800; font-size: 26px; text-transform: uppercase; line-height: 1.1; }
+
+/* sections */
+section { padding: 84px 0; }
+.section-head { display: flex; flex-direction: column; gap: 12px; margin-bottom: 40px; max-width: 62ch; }
+.section-head p { color: var(--muted); }
+
+.features { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.feature { padding: 26px; border-radius: 14px; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07); display: flex; flex-direction: column; gap: 10px; }
+.feature p { color: #c9d0db; }
+.feature .tag { align-self: flex-start; font-family: var(--font-mono); font-size: 12px; padding: 3px 9px; border-radius: 99px; border: 1px solid var(--thread-shade); color: var(--thread); }
+.feature .tag.planned { border-color: #59657a; color: var(--muted); }
+.feature svg { display: block; }
+.feature:last-child:nth-child(odd) { grid-column: 1 / -1; }
+
+/* steps */
+.steps { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; counter-reset: step; }
+.steps li { counter-increment: step; display: flex; flex-direction: column; gap: 8px; padding-top: 18px; border-top: 2px dashed rgba(231,181,74,0.5); }
+.steps li::before { content: counter(step, decimal-leading-zero); font-family: var(--font-mono); color: var(--thread); font-size: 14px; }
+.steps p { color: #c9d0db; font-size: 16px; }
+
+/* sample card */
+.sample { display: grid; grid-template-columns: auto 1fr; gap: 28px; align-items: center; padding: 26px; border-radius: 14px; background: var(--twill-deep); border: 1px solid rgba(255,255,255,0.07); margin-top: 40px; }
+.sample table { border-collapse: collapse; font-family: var(--font-mono); font-size: 14px; font-variant-numeric: tabular-nums; width: 100%; max-width: 420px; }
+.sample td { padding: 6px 0; border-bottom: 1px dashed rgba(255,255,255,0.1); }
+.sample td:last-child { text-align: right; color: var(--chalk); }
+.sample td:first-child { color: var(--muted); }
+.sample .cap { color: var(--muted); font-size: 13px; margin-top: 10px; }
+
+/* download */
+.download { display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; align-items: start; }
+.dl-card { padding: 30px; border-radius: 16px; background: #1f2b40; border: 2px solid var(--thread-shade); display: flex; flex-direction: column; gap: 16px; }
+.dl-card .ver { font-family: var(--font-mono); color: var(--muted); font-size: 14px; }
+.req { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.req li { display: flex; gap: 10px; color: #c9d0db; font-size: 16px; }
+.req li::before { content: "+"; color: var(--thread); font-family: var(--font-mono); }
+.note { padding: 18px 20px; border-left: 3px solid var(--thread); background: rgba(231,181,74,0.06); border-radius: 0 10px 10px 0; color: #c9d0db; font-size: 15px; }
+.note b { color: var(--chalk); }
+
+/* support */
+.support { text-align: left; display: grid; grid-template-columns: 1fr auto; gap: 32px; align-items: center; padding: 40px; border-radius: 22px; border: 2px dashed rgba(231,181,74,0.6); }
+.support p { color: #c9d0db; max-width: 52ch; margin-top: 12px; }
+
+footer { padding: 40px 0 56px; color: var(--muted); font-size: 14px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+@media (max-width: 860px) {
+  .hero, .download, .support { grid-template-columns: 1fr; }
+  .hero { gap: 36px; padding-top: 16px; }
+  .specs { grid-template-columns: repeat(2, 1fr); }
+  .spec:nth-child(3) { border-left: 0; }
+  .spec:nth-child(n+3) { border-top: 1px solid rgba(255,255,255,0.08); }
+  .features { grid-template-columns: 1fr; }
+  .steps { grid-template-columns: repeat(2, 1fr); }
+  .sample { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .steps { grid-template-columns: 1fr; }
+  .specs { grid-template-columns: 1fr; }
+  .spec + .spec { border-left: 0; border-top: 1px solid rgba(255,255,255,0.08); }
+  .navlinks { gap: 16px; }
+  .support { padding: 26px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .satin { transition: none; }
+}
+</style>
+</head>
+<body>
+<div class="wip" role="note"><div class="wrap"><span class="pill">Work in progress</span><span>Stitchwright is an early preview made by one person. Expect bugs and missing features. <a href="#preview">What that means</a></span></div></div>
+<div class="wrap">
+  <nav aria-label="Main">
+    <a class="brand" href="#top" id="top">
+      <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true">
+        <rect x="2" y="2" width="26" height="26" rx="7" fill="none" stroke="#e7b54a" stroke-width="2.5"/>
+        <path d="M8 21 L12 9 M11 21 L15 9 M14 21 L18 9 M17 21 L21 9" stroke="#e7b54a" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      Stitchwright
+    </a>
+    <div class="navlinks">
+      <a href="#features">Features</a>
+      <a href="#how">How it works</a>
+      <a href="#download">Download</a>
+      <a href="#support">Support</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div>
+      <h1>Names and monograms, <em>stitched clean</em></h1>
+      <p class="lede">Type a name, pick a font, or bring in your own SVG, and get a ready-to-sew file for your embroidery machine. Satin, industrial satin and several fill styles, free for Windows.</p>
+      <div class="actions">
+        <a class="btn btn-primary js-download" href="#download">
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 20h16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="js-download-label">Download for Windows</span>
+        </a>
+        <a class="btn btn-ghost" href="#features">See what it does</a>
+      </div>
+      <p class="fine mono"><span class="js-version">v0.1 early preview</span> · Windows 10 and 11 · Free · Work in progress</p>
+    </div>
+    <div class="patch" aria-label="Sample embroidered name patch">
+      <div class="satin">Stitch&shy;wright</div>
+      <p class="under mono"><b>Satin 0.40 mm</b> · Angle 72° · 1 colour</p>
+    </div>
+  </header>
+</div>
+
+<div class="wrap">
+  <div class="specs" role="list">
+    <div class="spec" role="listitem"><span class="k mono">Saves as</span><span class="v">PES · DST · JEF +3</span></div>
+    <div class="spec" role="listitem"><span class="k mono">Stitches</span><span class="v">Satin + 5 fills</span></div>
+    <div class="spec" role="listitem"><span class="k mono">Travel</span><span class="v">Follows the letter</span></div>
+    <div class="spec" role="listitem"><span class="k mono">Price</span><span class="v">Free</span></div>
+  </div>
+</div>
+
+<section id="features">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Built for lettering</h2>
+      <p>Most home embroidery software treats text as an afterthought. Stitchwright starts there: names on jackets, monograms on towels, initials on gifts.</p>
+    </div>
+    <div class="features">
+      <article class="feature">
+        <svg width="56" height="28" viewBox="0 0 56 28" aria-hidden="true"><path d="M4 24 L10 4 M9 24 L15 4 M14 24 L20 4 M19 24 L25 4 M24 24 L30 4 M29 24 L35 4 M34 24 L40 4 M39 24 L45 4 M44 24 L50 4" stroke="#e7b54a" stroke-width="2.2" stroke-linecap="round"/></svg>
+        <h3>Crisp satin lettering</h3>
+        <p>Dense, even satin columns with the smooth, raised look of professionally embroidered text. Still being tuned, so test-stitch on scrap fabric first.</p>
+        <span class="tag">In preview</span>
+      </article>
+      <article class="feature">
+        <svg width="56" height="28" viewBox="0 0 56 28" aria-hidden="true"><g stroke="#e7b54a" stroke-width="2" stroke-linecap="round"><path d="M4 6h20M4 12h20M4 18h20M4 24h20"/><path d="M32 6h20M32 12h20M32 18h20M32 24h20" opacity="0.45"/></g></svg>
+        <h3>Tatami fill, one section at a time</h3>
+        <p>Fills finish one part of a letter before moving on, instead of sweeping row by row across the gaps. Set the fill angle yourself, and stitch length adapts to the letter size.</p>
+        <span class="tag">In preview</span>
+      </article>
+      <article class="feature">
+        <svg width="56" height="28" viewBox="0 0 56 28" aria-hidden="true"><path d="M6 22 C14 2, 22 2, 28 14 S 44 26, 50 6" fill="none" stroke="#e7b54a" stroke-width="2.2" stroke-dasharray="5 4" stroke-linecap="round"/></svg>
+        <h3>Fewer jump stitches</h3>
+        <p>Stitchwright routes the needle along the letters to get from one part to the next, the way a 3D printer plans its travel. That means less trimming afterwards.</p>
+        <span class="tag">In preview</span>
+      </article>
+      <article class="feature">
+        <svg width="56" height="28" viewBox="0 0 56 28" aria-hidden="true"><circle cx="14" cy="14" r="10" fill="none" stroke="#e7b54a" stroke-width="2.2"/><path d="M14 8v6l4 3" stroke="#e7b54a" stroke-width="2.2" stroke-linecap="round" fill="none"/><path d="M32 10h18M32 18h12" stroke="#e7b54a" stroke-width="2.2" stroke-linecap="round" opacity="0.6"/></svg>
+        <h3>Sewing-time estimate</h3>
+        <p>See how long a design will take before you hoop it, based on your machine's stitch speed. Set to 400 stitches per minute for a Brother PP1, or change it to match yours.</p>
+        <span class="tag">In preview</span>
+      </article>
+      <article class="feature">
+        <svg width="56" height="28" viewBox="0 0 56 28" aria-hidden="true"><text x="2" y="23" font-family="Georgia, serif" font-size="24" fill="#e7b54a">Aa</text><text x="30" y="23" font-family="Arial Black, sans-serif" font-size="22" fill="#e7b54a" opacity="0.55">Aa</text></svg>
+        <h3>Open-source fonts included</h3>
+        <p>A set of free, openly licensed fonts comes bundled, ready to stitch. No font packs to buy before you start.</p>
+        <span class="tag">In preview</span>
+      </article>
+      <article class="feature">
+        <svg width="56" height="28" viewBox="0 0 56 28" aria-hidden="true"><g fill="none" stroke="#e7b54a" stroke-width="2"><rect x="3" y="4" width="14" height="20" rx="2"/><rect x="21" y="4" width="14" height="20" rx="2" opacity="0.75"/><rect x="39" y="4" width="14" height="20" rx="2" opacity="0.5"/></g></svg>
+        <h3>Works with most machines</h3>
+        <p>Save as PES for Brother, DST for Tajima and most commercial machines, JEF for Janome, EXP for Melco and Bernina, VP3 for Husqvarna Viking and Pfaff, or XXX for Singer.</p>
+        <span class="tag">In preview</span>
+      </article>
+      <article class="feature">
+        <svg width="56" height="28" viewBox="0 0 56 28" aria-hidden="true"><g fill="none" stroke="#e7b54a" stroke-width="2"><path d="M4 24 H16 M4 17 H22 M4 10 H28 M4 4 H34" stroke-linecap="round"/><circle cx="44" cy="14" r="9" opacity="0.6"/></g></svg>
+        <h3>Industrial satin and more stitch types</h3>
+        <p>Beyond plain satin: a factory-style industrial satin, shortest-span fill, contour fill and cross-hatch fill. Add a satin or running outline to any of them, with mitred corners on sharp angles.</p>
+        <span class="tag">In preview</span>
+      </article>
+      <article class="feature">
+        <svg width="56" height="28" viewBox="0 0 56 28" aria-hidden="true"><path d="M6 22 L16 6 L26 22 Z" fill="none" stroke="#e7b54a" stroke-width="2"/><circle cx="40" cy="14" r="8" fill="none" stroke="#e7b54a" stroke-width="2" opacity="0.6"/></svg>
+        <h3>SVG import with thread colours</h3>
+        <p>Bring in your own vector logos as filled shapes, paint each area with a thread colour, and skip stitching where one shape sits on top of another. Image tracing from PNG may follow later.</p>
+        <span class="tag">In preview</span>
+      </article>
+    </div>
+  </div>
+</section>
+
+<div class="wrap"><hr class="seam"></div>
+
+<section id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Text to thread in four steps</h2>
+    </div>
+    <ol class="steps">
+      <li><h3>Type</h3><p>Write the name or initials and pick a font, or import an SVG.</p></li>
+      <li><h3>Tune</h3><p>Choose a stitch type, set the angle, size and outline, and check the preview.</p></li>
+      <li><h3>Save</h3><p>Save in your machine's format, with the sewing time and stitch count shown.</p></li>
+      <li><h3>Stitch</h3><p>Send it to your machine by USB stick or through your machine's app.</p></li>
+    </ol>
+
+    <div class="sample">
+      <div class="patch" style="padding:22px 26px 20px; border-width:5px;">
+        <div class="satin" style="font-size:52px;">CF</div>
+      </div>
+      <div>
+        <table aria-label="Example design summary">
+          <tbody>
+            <tr><td>Design</td><td>CF monogram, satin</td></tr>
+            <tr><td>Size</td><td>60 × 40 mm</td></tr>
+            <tr><td>Stitches</td><td>4,812</td></tr>
+            <tr><td>Colours</td><td>1</td></tr>
+            <tr><td>Machine speed</td><td>400 spm</td></tr>
+            <tr><td>Sewing time</td><td>about 12 min</td></tr>
+          </tbody>
+        </table>
+        <p class="cap">Example of the design summary Stitchwright shows before you save.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap"><hr class="seam"></div>
+
+<section id="download">
+  <div class="wrap download">
+    <div class="dl-card">
+      <h2 style="font-size:40px;">Download</h2>
+      <p class="ver"><span class="js-version">v0.1 early preview</span> · <span class="js-filename">Stitchwright.exe</span></p>
+      <ul class="req">
+        <li>Windows 10 or Windows 11, 64-bit</li>
+        <li>Saves PES (Brother), DST (Tajima), JEF (Janome), EXP (Melco, Bernina), VP3 (Husqvarna Viking, Pfaff) and XXX (Singer)</li>
+        <li>No account, no subscription, no ads</li>
+      </ul>
+      <div class="actions" style="margin-top:4px;">
+        <a class="btn btn-primary js-download" href="#download">
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 20h16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="js-download-label">Download for Windows</span>
+        </a>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:16px;">
+      <div class="note" id="preview"><b>This is an early preview, not a finished program.</b> Stitchwright is a hobby project in active development. Some features are rough, stitch results may not always match the preview, and things will change between versions. Always do a test stitch-out on scrap fabric before using it on something you care about. Found a bug or have an idea? Email <a href="mailto:christian.cfdesign@gmail.com">christian.cfdesign@gmail.com</a> or send a message on <a href="https://ko-fi.com/cfdesign">Ko-fi</a>.</div>
+      <div class="note"><b>Seeing a blue "Windows protected your PC" box?</b> That appears for new programs from small developers. Click <b>More info</b>, then <b>Run anyway</b>.</div>
+      <div class="note"><b>About fonts and designs.</b> The bundled fonts are free and open source. If you sell items made with Stitchwright, you are responsible for checking the licences of any fonts and images you use. You agree to this when the program first starts.</div>
+    </div>
+  </div>
+</section>
+
+<section id="support" style="padding-top:20px;">
+  <div class="wrap">
+    <div class="support">
+      <div>
+        <h2>Free to use. Tips welcome.</h2>
+        <p>Stitchwright is a one-person project, made in Norway. If it saves you a trip to a digitizer, you can support new features with a coffee on Ko-fi.</p>
+      </div>
+      <a class="btn btn-primary" href="https://ko-fi.com/cfdesign">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h13v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8Zm13 1h2a3 3 0 0 1 0 6h-2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>
+        Support on Ko-fi
+      </a>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <hr class="seam">
+  <footer>
+    <span>Stitchwright by CF Design · Norway · <a href="mailto:christian.cfdesign@gmail.com">christian.cfdesign@gmail.com</a> · <a href="https://ko-fi.com/cfdesign">ko-fi.com/cfdesign</a></span>
+    <span>Brother, Tajima, Janome, Melco, Bernina, Husqvarna Viking, Pfaff and Singer are trademarks of their respective owners. Stitchwright is not affiliated with any of them.</span>
+  </footer>
+</div>
+
+<script>
+// ---- Edit these when you publish a release ----
+const RELEASE = {
+  version: "v0.1 early preview",
+  fileName: "Stitchwright.exe",
+  // Paste the link to your .exe here (for example a GitHub Releases link). Leave empty until it's ready.
+  downloadUrl: "https://github.com/Nexthell/Stitchwright/releases/download/WIP/Stitchwright.exe"
+};
+// ----------------------------------------------
+document.querySelectorAll(".js-version").forEach(el => el.textContent = RELEASE.version);
+document.querySelectorAll(".js-filename").forEach(el => el.textContent = RELEASE.fileName);
+document.querySelectorAll(".js-download").forEach(a => {
+  if (RELEASE.downloadUrl) {
+    a.href = RELEASE.downloadUrl;
+  } else {
+    a.querySelector(".js-download-label").textContent = "Download coming soon";
+    a.setAttribute("aria-disabled", "true");
+    a.addEventListener("click", e => {
+      e.preventDefault();
+      document.getElementById("download").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    });
+  }
+});
+</script>
+</body>
+</html>
